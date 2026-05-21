@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My AI Tools - AI工具集合</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">&#x1F916;</span>
+            <h1>My AI Tools</h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home">首页</a></li>
+            <li><a href="#tools">工具集</a></li>
+            <li><a href="#about">关于</a></li>
+        </ul>
+    </nav>
+
+    <header class="hero" id="home">
+        <h2>AI 工具集合</h2>
+        <p>个人常用AI工具，在线体验，无需安装</p>
+    </header>
+
+    <main class="container" id="tools">
+        <h2 class="section-title">工具列表</h2>
+        <div class="tools-grid">
+            <div class="tool-card" onclick="showTool('text-summarizer')">
+                <div class="tool-icon">&#x1F4DD;</div>
+                <h3>文本摘要</h3>
+                <p>输入长文本，自动提取关键内容生成摘要</p>
+            </div>
+            <div class="tool-card" onclick="showTool('translator')">
+                <div class="tool-icon">&#x1F310;</div>
+                <h3>智能翻译</h3>
+                <p>支持中英文互译，保持语义自然流畅</p>
+            </div>
+            <div class="tool-card" onclick="showTool('sentiment')">
+                <div class="tool-icon">&#x1F60A;</div>
+                <h3>情感分析</h3>
+                <p>分析文本情感倾向，判断正面/负面/中性</p>
+            </div>
+            <div class="tool-card" onclick="showTool('code-generator')">
+                <div class="tool-icon">&#x1F4BB;</div>
+                <h3>代码生成</h3>
+                <p>描述需求，自动生成对应代码片段</p>
+            </div>
+            <div class="tool-card" onclick="showTool('json-formatter')">
+                <div class="tool-icon">&#x1F4CB;</div>
+                <h3>JSON格式化</h3>
+                <p>美化、压缩、验证JSON数据</p>
+            </div>
+            <div class="tool-card" onclick="showTool('password-gen')">
+                <div class="tool-icon">&#x1F510;</div>
+                <h3>密码生成器</h3>
+                <p>生成安全的随机密码，可自定义规则</p>
+            </div>
+            <div class="tool-card" onclick="showTool('markdown-preview')">
+                <div class="tool-icon">&#x1F4D6;</div>
+                <h3>Markdown预览</h3>
+                <p>实时预览Markdown文本渲染效果</p>
+            </div>
+            <div class="tool-card" onclick="showTool('color-picker')">
+                <div class="tool-icon">&#x1F3A8;</div>
+                <h3>颜色工具</h3>
+                <p>颜色选择、转换、配色方案生成</p>
+            </div>
+            <div class="tool-card" onclick="showTool('word-counter')">
+                <div class="tool-icon">&#x1F522;</div>
+                <h3>字数统计</h3>
+                <p>统计字符数、词数、行数、阅读时间</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Tool Modals -->
+    <div class="modal-overlay" id="modal-overlay" onclick="closeTool()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modal-title">工具</h3>
+                <button class="close-btn" onclick="closeTool()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+            </div>
+        </div>
+    </div>
+
+    <footer id="about">
+        <p>My AI Tools &copy; 2024 | 个人AI工具集合</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
