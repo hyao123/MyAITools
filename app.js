@@ -1,571 +1,377 @@
-// Tool definitions and their UI
-const tools = {
-    'text-summarizer': {
-        title: '文本摘要',
-        render: () => `
-            <div class="form-group">
-                <label>输入需要摘要的文本：</label>
-                <textarea class="tool-textarea" id="summarize-input" placeholder="粘贴你的长文本..."></textarea>
-            </div>
-            <button class="tool-btn" onclick="summarizeText()">生成摘要</button>
-            <div class="result-box" id="summarize-result" style="display:none"></div>
-        `
-    },
-    'translator': {
-        title: '智能翻译',
-        render: () => `
-            <div class="form-group">
-                <label>翻译方向：</label>
-                <div class="form-row">
-                    <select class="tool-select" id="translate-dir">
-                        <option value="zh2en">中文 → 英文</option>
-                        <option value="en2zh">英文 → 中文</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>输入文本：</label>
-                <textarea class="tool-textarea" id="translate-input" placeholder="输入要翻译的文本..."></textarea>
-            </div>
-            <button class="tool-btn" onclick="translateText()">翻译</button>
-            <div class="result-box" id="translate-result" style="display:none"></div>
-        `
-    },
+const tools = [
+  // === 编码 Agent ===
+  {
+    name: "Claude Code",
+    category: "coding",
+    stars: "122K+",
+    repo: "anthropics/claude-code",
+    url: "https://github.com/anthropics/claude-code",
+    pain: "复杂多文件代码重构、理解大型代码库",
+    desc: "终端优先的自主编码 Agent，1M token 上下文窗口，SWE-bench 80%+ 得分。可直接操作 git、运行测试、多文件修改。",
+    tags: ["CLI", "Agent", "多文件编辑", "Git集成"]
+  },
+  {
+    name: "Cursor",
+    category: "coding",
+    stars: "50K+",
+    repo: "getcursor/cursor",
+    url: "https://www.cursor.com",
+    pain: "IDE 中与 AI 无缝协作编码",
+    desc: "AI-first 代码编辑器，基于 VS Code。Composer 模式支持多文件 Agent 编辑，Tab 补全极快，支持 Claude/GPT/Gemini 多模型切换。",
+    tags: ["IDE", "多模型", "Agent模式", "Tab补全"]
+  },
+  {
+    name: "OpenAI Codex CLI",
+    category: "coding",
+    stars: "41K+",
+    repo: "openai/codex",
+    url: "https://github.com/openai/codex",
+    pain: "终端内快速完成编码任务",
+    desc: "OpenAI 官方轻量终端编码 Agent，支持 GPT-5-Codex 模型，自动执行命令、编辑文件、运行测试。适合终端重度用户。",
+    tags: ["CLI", "GPT-5", "轻量", "终端"]
+  },
+  {
+    name: "Aider",
+    category: "coding",
+    stars: "30K+",
+    repo: "paul-gauthier/aider",
+    url: "https://github.com/paul-gauthier/aider",
+    pain: "终端里 pair programming、自动 git commit",
+    desc: "最佳开源终端 AI 编码助手，支持多模型(Claude/GPT/本地)，自动 git 集成，多文件编辑，免费无限使用。",
+    tags: ["开源", "CLI", "Git集成", "多模型"]
+  },
+  {
+    name: "GitHub Copilot",
+    category: "coding",
+    stars: "内置",
+    repo: "github/copilot",
+    url: "https://github.com/features/copilot",
+    pain: "日常编码补全和快速生成",
+    desc: "最普及的 AI 编码助手，Copilot Workspace 支持全流程 Agent 开发，从 Issue 到 PR 自动化。Agent 模式支持多文件修改。",
+    tags: ["IDE插件", "Agent模式", "Workspace", "企业级"]
+  },
+  {
+    name: "OpenHands (ex-OpenDevin)",
+    category: "coding",
+    stars: "45K+",
+    repo: "All-Hands-AI/OpenHands",
+    url: "https://github.com/All-Hands-AI/OpenHands",
+    pain: "让 AI 像真正的开发者一样工作",
+    desc: "开源的 AI 软件工程师平台，能浏览网页、写代码、执行命令。支持沙盒环境，SWE-bench 顶级表现。",
+    tags: ["开源", "自主Agent", "沙盒", "SWE-bench"]
+  },
+  {
+    name: "Devin",
+    category: "coding",
+    stars: "商业",
+    repo: "cognition-ai/devin",
+    url: "https://devin.ai",
+    pain: "完全自主完成软件工程任务",
+    desc: "第一个全自主 AI 软件工程师，能独立完成从需求理解到部署的完整流程。适合委派独立任务。$500/月。",
+    tags: ["自主Agent", "全流程", "商业"]
+  },
 
-    'sentiment': {
-        title: '情感分析',
-        render: () => `
-            <div class="form-group">
-                <label>输入要分析的文本：</label>
-                <textarea class="tool-textarea" id="sentiment-input" placeholder="输入一段文本来分析其情感倾向..."></textarea>
-            </div>
-            <button class="tool-btn" onclick="analyzeSentiment()">分析情感</button>
-            <div id="sentiment-result" style="display:none">
-                <div class="sentiment-bar-container">
-                    <div class="sentiment-bar positive">
-                        <span class="label">正面</span>
-                        <div class="bar"><div class="bar-fill" id="pos-bar"></div></div>
-                        <span class="value" id="pos-val">0%</span>
-                    </div>
-                    <div class="sentiment-bar neutral">
-                        <span class="label">中性</span>
-                        <div class="bar"><div class="bar-fill" id="neu-bar"></div></div>
-                        <span class="value" id="neu-val">0%</span>
-                    </div>
-                    <div class="sentiment-bar negative">
-                        <span class="label">负面</span>
-                        <div class="bar"><div class="bar-fill" id="neg-bar"></div></div>
-                        <span class="value" id="neg-val">0%</span>
-                    </div>
-                </div>
-                <div class="result-box" id="sentiment-summary"></div>
-            </div>
-        `
-    },
+  // === 工作流/自动化 ===
+  {
+    name: "n8n",
+    category: "workflow",
+    stars: "150K+",
+    repo: "n8n-io/n8n",
+    url: "https://github.com/n8n-io/n8n",
+    pain: "构建 AI 驱动的自动化工作流",
+    desc: "最火的开源工作流自动化平台，fair-code 协议。原生支持 AI Agent 节点、LangChain 集成、400+ 连接器。可自托管，数据隐私有保障。",
+    tags: ["开源", "自托管", "低代码", "400+集成"]
+  },
+  {
+    name: "Dify",
+    category: "workflow",
+    stars: "90K+",
+    repo: "langgenius/dify",
+    url: "https://github.com/langgenius/dify",
+    pain: "快速构建生产级 AI 应用",
+    desc: "开源 LLMOps 平台，可视化编排 AI 工作流、RAG 管道、Agent。支持多模型、知识库管理、API 即发布。从原型到生产一站式。",
+    tags: ["开源", "LLMOps", "RAG", "可视化"]
+  },
+  {
+    name: "Flowise",
+    category: "workflow",
+    stars: "35K+",
+    repo: "FlowiseAI/Flowise",
+    url: "https://github.com/FlowiseAI/Flowise",
+    pain: "拖拽式构建 LLM 应用链",
+    desc: "基于 LangChain 的拖拽式 UI，可视化构建 LLM 流程。支持自定义 Agent、RAG、对话记忆。比直接写 LangChain 代码快 10 倍。",
+    tags: ["开源", "拖拽式", "LangChain", "RAG"]
+  },
+  {
+    name: "Zapier + AI",
+    category: "workflow",
+    stars: "商业",
+    repo: "zapier",
+    url: "https://zapier.com/ai",
+    pain: "非技术人员自动化重复工作",
+    desc: "7000+ 应用集成 + AI Agent，自然语言创建自动化。Central 功能可创建自主 Agent 处理业务流程。最适合非技术团队。",
+    tags: ["商业", "无代码", "7000+集成", "Agent"]
+  },
 
-    'code-generator': {
-        title: '代码生成',
-        render: () => `
-            <div class="form-group">
-                <label>选择语言：</label>
-                <select class="tool-select" id="code-lang">
-                    <option value="javascript">JavaScript</option>
-                    <option value="python">Python</option>
-                    <option value="html">HTML</option>
-                    <option value="css">CSS</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>描述你想要的功能：</label>
-                <textarea class="tool-textarea" id="code-input" placeholder="例如：一个冒泡排序函数"></textarea>
-            </div>
-            <button class="tool-btn" onclick="generateCode()">生成代码</button>
-            <div class="result-box" id="code-result" style="display:none"></div>
-        `
-    },
-    'json-formatter': {
-        title: 'JSON格式化',
-        render: () => `
-            <div class="form-group">
-                <label>输入JSON数据：</label>
-                <textarea class="tool-textarea" id="json-input" placeholder='{"name":"test","age":25,"items":[1,2,3]}'></textarea>
-            </div>
-            <div class="form-row">
-                <button class="tool-btn" onclick="formatJSON('beautify')">美化</button>
-                <button class="tool-btn" onclick="formatJSON('minify')">压缩</button>
-                <button class="tool-btn" onclick="formatJSON('validate')">验证</button>
-            </div>
-            <div class="result-box" id="json-result" style="display:none"></div>
-        `
-    },
+  // === 本地部署 ===
+  {
+    name: "Ollama",
+    category: "local",
+    stars: "130K+",
+    repo: "ollama/ollama",
+    url: "https://github.com/ollama/ollama",
+    pain: "一条命令本地运行大模型",
+    desc: "本地 LLM 运行神器。`ollama run llama3` 即跑，支持 DeepSeek/Qwen/Gemma/Llama 等主流模型。极简 API，Mac/Linux/Win 全平台。",
+    tags: ["开源", "本地部署", "极简", "全平台"]
+  },
+  {
+    name: "Open WebUI",
+    category: "local",
+    stars: "80K+",
+    repo: "open-webui/open-webui",
+    url: "https://github.com/open-webui/open-webui",
+    pain: "本地模型需要好用的聊天界面",
+    desc: "最佳本地 LLM 前端，ChatGPT 风格 UI。支持 Ollama/OpenAI API，多用户、RAG、插件、语音。Docker 一键部署，完全私有。",
+    tags: ["开源", "ChatGPT风格", "RAG", "多用户"]
+  },
+  {
+    name: "LocalAI",
+    category: "local",
+    stars: "30K+",
+    repo: "mudler/LocalAI",
+    url: "https://github.com/mudler/LocalAI",
+    pain: "需要 OpenAI API 兼容的本地推理",
+    desc: "OpenAI API 的本地替代品，无需 GPU 即可运行。支持文本/图像/音频生成，兼容现有 OpenAI SDK 代码，零改动切换到本地。",
+    tags: ["开源", "API兼容", "无需GPU", "多模态"]
+  },
+  {
+    name: "LM Studio",
+    category: "local",
+    stars: "商业/免费",
+    repo: "lmstudio-ai",
+    url: "https://lmstudio.ai",
+    pain: "图形界面管理和运行本地模型",
+    desc: "最友好的本地模型管理 GUI，一键下载/运行 GGUF 模型。内置 Chat UI + 本地 API Server。个人免费，适合不想碰命令行的用户。",
+    tags: ["GUI", "免费", "GGUF", "API Server"]
+  },
+  {
+    name: "PrivateGPT",
+    category: "local",
+    stars: "55K+",
+    repo: "zylon-ai/private-gpt",
+    url: "https://github.com/zylon-ai/private-gpt",
+    pain: "私密文档问答，数据不出本地",
+    desc: "100% 私有的文档 AI 问答系统，支持上传 PDF/DOCX/TXT，本地向量化+LLM 回答。企业敏感数据场景的首选。",
+    tags: ["开源", "RAG", "隐私", "文档问答"]
+  },
 
-    'password-gen': {
-        title: '密码生成器',
-        render: () => `
-            <div class="form-group">
-                <label>密码长度：</label>
-                <input type="range" id="pwd-length" min="6" max="64" value="16" class="tool-input" 
-                    style="padding:0" oninput="document.getElementById('pwd-len-val').textContent=this.value">
-                <span id="pwd-len-val" style="margin-left:0.5rem">16</span>
-            </div>
-            <div class="form-group">
-                <label>包含字符：</label>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" id="pwd-upper" checked> 大写字母</label>
-                    <label><input type="checkbox" id="pwd-lower" checked> 小写字母</label>
-                    <label><input type="checkbox" id="pwd-numbers" checked> 数字</label>
-                    <label><input type="checkbox" id="pwd-symbols" checked> 特殊符号</label>
-                </div>
-            </div>
-            <button class="tool-btn" onclick="generatePassword()">生成密码</button>
-            <div class="result-box" id="pwd-result" style="display:none"></div>
-        `
-    },
-    'markdown-preview': {
-        title: 'Markdown预览',
-        render: () => `
-            <div class="form-group">
-                <label>输入Markdown文本：</label>
-                <textarea class="tool-textarea" id="md-input" oninput="previewMarkdown()" 
-                    placeholder="# 标题\n\n**粗体** *斜体*\n\n- 列表项1\n- 列表项2\n\n> 引用文本\n\n\`代码\`">
-# Hello World
+  // === MCP 生态 ===
+  {
+    name: "MCP Servers (官方)",
+    category: "mcp",
+    stars: "15K+",
+    repo: "modelcontextprotocol/servers",
+    url: "https://github.com/modelcontextprotocol/servers",
+    pain: "AI 模型需要连接外部数据和工具",
+    desc: "Anthropic 官方 MCP Server 实现集合。包含 Filesystem、GitHub、Slack、PostgreSQL、Google Drive 等核心连接器。AI Agent 能力扩展必备。",
+    tags: ["官方", "协议标准", "数据连接"]
+  },
+  {
+    name: "Awesome MCP Servers",
+    category: "mcp",
+    stars: "35K+",
+    repo: "wong2/awesome-mcp-servers",
+    url: "https://github.com/wong2/awesome-mcp-servers",
+    pain: "找不到好用的 MCP Server",
+    desc: "最全的 MCP Server 策展列表，按类别整理（数据库/搜索/开发/生产力等）。选 MCP Server 先看这个列表。",
+    tags: ["策展列表", "分类整理", "社区维护"]
+  },
+  {
+    name: "Smithery.ai",
+    category: "mcp",
+    stars: "平台",
+    repo: "smithery-ai",
+    url: "https://smithery.ai",
+    pain: "MCP Server 发现和一键安装",
+    desc: "MCP Server 的 npm/应用商店，一键安装配置。按使用量排名，有质量保障。支持 Claude/Cursor/Windsurf 等客户端直接安装。",
+    tags: ["平台", "一键安装", "质量排名"]
+  },
 
-**这是粗体** *这是斜体*
+  // === 应用构建 ===
+  {
+    name: "bolt.new",
+    category: "builder",
+    stars: "25K+",
+    repo: "stackblitz/bolt.new",
+    url: "https://github.com/stackblitz/bolt.new",
+    pain: "自然语言直接生成全栈 Web 应用",
+    desc: "StackBlitz 出品，提示词即全栈应用。浏览器内运行，实时预览，一键部署。支持 React/Vue/Node 等技术栈，非技术人员也能用。",
+    tags: ["全栈生成", "浏览器内", "一键部署"]
+  },
+  {
+    name: "v0.dev",
+    category: "builder",
+    stars: "商业",
+    repo: "vercel/v0",
+    url: "https://v0.dev",
+    pain: "快速生成高质量 UI 组件",
+    desc: "Vercel 出品的 AI UI 生成器，描述需求即生成 React + Tailwind 组件。生成质量极高，支持 shadcn/ui，可直接复制到项目。",
+    tags: ["UI生成", "React", "Tailwind", "高质量"]
+  },
+  {
+    name: "Lovable (ex-GPT Engineer)",
+    category: "builder",
+    stars: "55K+",
+    repo: "lovable-dev/lovable",
+    url: "https://lovable.dev",
+    pain: "从想法到部署的全栈应用生成",
+    desc: "AI 全栈应用生成器，对话式开发。支持认证、数据库、支付等完整功能。从 GPT-Engineer 演变而来，更注重生产可用性。",
+    tags: ["全栈", "对话式开发", "生产级"]
+  },
+  {
+    name: "Dyad",
+    category: "builder",
+    stars: "8K+",
+    repo: "dyad-sh/dyad",
+    url: "https://github.com/dyad-sh/dyad",
+    pain: "本地、隐私优先的应用构建",
+    desc: "开源本地 AI 应用构建器，v0/Bolt 的本地替代品。支持 Ollama 本地模型，代码完全本地生成，隐私有保障。Power User 向。",
+    tags: ["开源", "本地", "隐私", "替代品"]
+  },
 
-- 列表项 1
-- 列表项 2
-- 列表项 3
+  // === Agent 框架 ===
+  {
+    name: "LangChain",
+    category: "framework",
+    stars: "100K+",
+    repo: "langchain-ai/langchain",
+    url: "https://github.com/langchain-ai/langchain",
+    pain: "构建 LLM 应用的基础设施",
+    desc: "最流行的 LLM 应用开发框架。提供 Chain/Agent/Tool/Memory 等抽象。生态最大，文档最全。LangGraph 子项目支持复杂有状态工作流。",
+    tags: ["开源", "Python/JS", "生态最大", "LangGraph"]
+  },
+  {
+    name: "CrewAI",
+    category: "framework",
+    stars: "28K+",
+    repo: "crewAIInc/crewAI",
+    url: "https://github.com/crewAIInc/crewAI",
+    pain: "多 Agent 协作完成复杂任务",
+    desc: "最直觉的多 Agent 框架，角色扮演范式。定义 Agent 角色+目标+工具，自动协作。3 小时出原型，89% 任务成功率。月下载 500 万+。",
+    tags: ["开源", "多Agent", "角色扮演", "简单直觉"]
+  },
+  {
+    name: "AutoGen (Microsoft)",
+    category: "framework",
+    stars: "40K+",
+    repo: "microsoft/autogen",
+    url: "https://github.com/microsoft/autogen",
+    pain: "企业级多 Agent 系统",
+    desc: "微软出品的多 Agent 对话框架。支持 Agent 间自主对话、人机协同、代码执行。企业场景首选，与 Azure 生态深度集成。",
+    tags: ["微软", "企业级", "多Agent对话", "Azure"]
+  },
+  {
+    name: "LangGraph",
+    category: "framework",
+    stars: "10K+",
+    repo: "langchain-ai/langgraph",
+    url: "https://github.com/langchain-ai/langgraph",
+    pain: "需要精细控制 Agent 工作流状态",
+    desc: "LangChain 团队出品，图状态机驱动的 Agent 框架。支持循环、分支、持久化、人机交互节点。最适合需要精确控制流程的场景。",
+    tags: ["状态图", "精细控制", "持久化", "循环"]
+  },
+  {
+    name: "Agno (ex-Phidata)",
+    category: "framework",
+    stars: "20K+",
+    repo: "agno-agi/agno",
+    url: "https://github.com/agno-agi/agno",
+    pain: "快速构建带工具和记忆的 Agent",
+    desc: "极简 Agent 构建框架，几行代码创建带工具调用、知识库、记忆的 Agent。内置 Web 搜索/计算/文件等工具。上手最快的框架之一。",
+    tags: ["极简", "快速上手", "内置工具", "知识库"]
+  },
 
-> 这是一段引用
+  // === 更多痛点工具 ===
+  {
+    name: "Perplexity",
+    category: "workflow",
+    stars: "商业",
+    repo: "perplexity-ai",
+    url: "https://perplexity.ai",
+    pain: "AI 搜索替代 Google，答案带来源",
+    desc: "AI 原生搜索引擎，回答问题直接给结论+来源链接。Deep Research 功能可自主研究复杂课题，生成完整报告。研究效率 10x。",
+    tags: ["AI搜索", "带来源", "深度研究"]
+  },
+  {
+    name: "NotebookLM",
+    category: "workflow",
+    stars: "Google",
+    repo: "google",
+    url: "https://notebooklm.google.com",
+    pain: "大量文档/论文需要快速理解和问答",
+    desc: "Google 出品的 AI 笔记本，上传文档后可对话、提问、生成摘要。支持 PDF/网页/YouTube。播客生成功能把文档变成对话式音频。",
+    tags: ["文档理解", "多来源", "播客生成"]
+  },
+  {
+    name: "Whisper + faster-whisper",
+    category: "local",
+    stars: "75K+",
+    repo: "openai/whisper",
+    url: "https://github.com/openai/whisper",
+    pain: "音频/视频转文字",
+    desc: "OpenAI 开源语音识别模型，支持 99 种语言。faster-whisper 用 CTranslate2 加速 4x。会议录音、字幕生成、播客转录必备。",
+    tags: ["开源", "多语言", "语音转文字", "本地"]
+  },
+  {
+    name: "ComfyUI",
+    category: "local",
+    stars: "70K+",
+    repo: "comfyanonymous/ComfyUI",
+    url: "https://github.com/comfyanonymous/ComfyUI",
+    pain: "AI 图像生成的精细工作流控制",
+    desc: "节点式 AI 图像生成工作流引擎。比 WebUI 更灵活，支持复杂管线(ControlNet/IP-Adapter/视频)。专业用户和批量生产首选。",
+    tags: ["开源", "节点式", "Stable Diffusion", "专业级"]
+  },
+  {
+    name: "Markitdown",
+    category: "workflow",
+    stars: "40K+",
+    repo: "microsoft/markitdown",
+    url: "https://github.com/microsoft/markitdown",
+    pain: "各种文档格式转 Markdown 给 LLM 使用",
+    desc: "微软出品，将 PDF/DOCX/PPTX/HTML/图片等转为 Markdown 文本。LLM/RAG 管道的预处理利器，保留结构和格式信息。",
+    tags: ["微软", "格式转换", "RAG预处理", "多格式"]
+  }
+];
 
-\`inline code\` 示例
+// Render
+function renderTools(filter = 'all') {
+  const grid = document.getElementById('tools-grid');
+  const filtered = filter === 'all' ? tools : tools.filter(t => t.category === filter);
+  document.getElementById('total-count').textContent = tools.length;
 
-```
-代码块示例
-console.log('Hello!');
-```</textarea>
-            </div>
-            <label style="color:#b0b0b0;font-size:0.9rem">预览：</label>
-            <div class="markdown-preview" id="md-preview"></div>
-        `
-    },
-
-    'color-picker': {
-        title: '颜色工具',
-        render: () => `
-            <div class="form-group">
-                <label>选择颜色：</label>
-                <input type="color" id="color-input" value="#667eea" class="tool-input" 
-                    style="height:50px;padding:5px;cursor:pointer" oninput="updateColor()">
-            </div>
-            <div class="color-preview" id="color-preview" style="background:#667eea"></div>
-            <div class="color-values" id="color-values">
-                <span>HEX: #667eea</span>
-                <span>RGB: rgb(102, 126, 234)</span>
-                <span>HSL: hsl(229, 76%, 66%)</span>
-                <span>RGBA: rgba(102, 126, 234, 1)</span>
-            </div>
-            <div class="form-group" style="margin-top:1rem">
-                <label>或输入颜色值：</label>
-                <input type="text" class="tool-input" id="color-text-input" 
-                    placeholder="#667eea 或 rgb(102,126,234)" onchange="parseColorInput()">
-            </div>
-        `
-    },
-    'word-counter': {
-        title: '字数统计',
-        render: () => `
-            <div class="form-group">
-                <label>输入文本：</label>
-                <textarea class="tool-textarea" id="wc-input" oninput="countWords()" 
-                    placeholder="输入或粘贴文本来统计..."></textarea>
-            </div>
-            <div class="stats-grid" id="wc-stats">
-                <div class="stat-item">
-                    <span class="stat-number" id="wc-chars">0</span>
-                    <span class="stat-label">字符数</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="wc-chars-no-space">0</span>
-                    <span class="stat-label">字符(无空格)</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="wc-words">0</span>
-                    <span class="stat-label">词/字数</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="wc-lines">0</span>
-                    <span class="stat-label">行数</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="wc-sentences">0</span>
-                    <span class="stat-label">句子数</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="wc-reading">0分钟</span>
-                    <span class="stat-label">阅读时间</span>
-                </div>
-            </div>
-        `
-    }
-};
-
-
-// Modal control
-function showTool(toolId) {
-    const tool = tools[toolId];
-    if (!tool) return;
-    document.getElementById('modal-title').textContent = tool.title;
-    document.getElementById('modal-body').innerHTML = tool.render();
-    document.getElementById('modal-overlay').classList.add('active');
-    document.body.style.overflow = 'hidden';
-    // Auto-trigger for markdown preview
-    if (toolId === 'markdown-preview') {
-        setTimeout(previewMarkdown, 100);
-    }
+  grid.innerHTML = filtered.map(tool => `
+    <div class="tool-card" data-category="${tool.category}">
+      <div class="card-header">
+        <h3>${tool.name}</h3>
+        <span class="stars">${tool.stars} &#11088;</span>
+      </div>
+      <div class="pain-point">&#128293; 解决痛点: ${tool.pain}</div>
+      <p class="desc">${tool.desc}</p>
+      <div class="tags">${tool.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+      <a href="${tool.url}" target="_blank" class="card-link">&#128279; ${tool.url.includes('github.com') ? 'GitHub' : '官网'}</a>
+    </div>
+  `).join('');
 }
 
-function closeTool() {
-    document.getElementById('modal-overlay').classList.remove('active');
-    document.body.style.overflow = '';
-}
-
-// ESC to close
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeTool();
+// Filter
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTools(btn.dataset.filter);
+  });
 });
 
-// --- Tool Functions ---
-
-// Text Summarizer (simple extractive)
-function summarizeText() {
-    const text = document.getElementById('summarize-input').value.trim();
-    if (!text) return alert('请输入文本');
-    const sentences = text.match(/[^。！？.!?\n]+[。！？.!?\n]?/g) || [text];
-    const wordCount = text.length;
-    let summary = '';
-    if (sentences.length <= 3) {
-        summary = text;
-    } else {
-        // Score sentences by position and length
-        const scored = sentences.map((s, i) => ({
-            text: s.trim(),
-            score: (i === 0 ? 3 : 1) + (s.length > 20 ? 1 : 0) + (i === sentences.length - 1 ? 2 : 0)
-        }));
-        scored.sort((a, b) => b.score - a.score);
-        const topN = Math.min(3, Math.ceil(sentences.length * 0.3));
-        const selected = scored.slice(0, topN).map(s => s.text);
-        summary = selected.join(' ');
-    }
-    const result = document.getElementById('summarize-result');
-    result.style.display = 'block';
-    result.innerHTML = `<strong>摘要结果：</strong>\n\n${summary}\n\n<em style="color:#667eea">原文 ${wordCount} 字 → 摘要 ${summary.length} 字 (压缩率: ${Math.round((1 - summary.length/wordCount)*100)}%)</em>`;
-}
-
-
-// Translator (simple dictionary + rule based demo)
-function translateText() {
-    const text = document.getElementById('translate-input').value.trim();
-    const dir = document.getElementById('translate-dir').value;
-    if (!text) return alert('请输入文本');
-
-    let result = '';
-    if (dir === 'zh2en') {
-        // Simple Chinese to English simulation
-        const dict = {
-            '你好': 'Hello', '世界': 'World', '谢谢': 'Thank you',
-            '早上好': 'Good morning', '晚上好': 'Good evening',
-            '我': 'I', '你': 'you', '他': 'he', '她': 'she',
-            '是': 'is', '的': "'s", '很': 'very', '好': 'good',
-            '大': 'big', '小': 'small', '人工智能': 'Artificial Intelligence',
-            '机器学习': 'Machine Learning', '深度学习': 'Deep Learning',
-            '计算机': 'Computer', '程序': 'Program', '算法': 'Algorithm',
-            '数据': 'Data', '网络': 'Network', '今天': 'Today',
-            '明天': 'Tomorrow', '学习': 'Study', '工作': 'Work',
-            '喜欢': 'like', '不': 'not', '这个': 'this', '那个': 'that'
-        };
-        result = text;
-        for (const [zh, en] of Object.entries(dict)) {
-            result = result.replace(new RegExp(zh, 'g'), en + ' ');
-        }
-        result = `[翻译结果]\n${result.trim()}\n\n(注：这是简化的本地翻译演示，完整翻译需要接入AI API)`;
-    } else {
-        // English to Chinese
-        const dict = {
-            'hello': '你好', 'world': '世界', 'thank you': '谢谢',
-            'good morning': '早上好', 'good evening': '晚上好',
-            'artificial intelligence': '人工智能', 'machine learning': '机器学习',
-            'deep learning': '深度学习', 'computer': '计算机',
-            'program': '程序', 'algorithm': '算法', 'data': '数据',
-            'network': '网络', 'today': '今天', 'tomorrow': '明天',
-            'study': '学习', 'work': '工作', 'like': '喜欢',
-            'this': '这个', 'that': '那个', 'big': '大', 'small': '小',
-            'good': '好', 'bad': '坏', 'love': '爱', 'happy': '快乐'
-        };
-        result = text.toLowerCase();
-        for (const [en, zh] of Object.entries(dict)) {
-            result = result.replace(new RegExp('\\b' + en + '\\b', 'gi'), zh);
-        }
-        result = `[翻译结果]\n${result}\n\n(注：这是简化的本地翻译演示，完整翻译需要接入AI API)`;
-    }
-    const el = document.getElementById('translate-result');
-    el.style.display = 'block';
-    el.textContent = result;
-}
-
-
-// Sentiment Analysis
-function analyzeSentiment() {
-    const text = document.getElementById('sentiment-input').value.trim();
-    if (!text) return alert('请输入文本');
-
-    // Simple keyword-based sentiment analysis
-    const posWords = ['好', '棒', '优秀', '喜欢', '爱', '开心', '快乐', '幸福', '满意', '感谢',
-        'good', 'great', 'excellent', 'love', 'happy', 'wonderful', 'amazing', 'perfect',
-        '不错', '赞', '厉害', '漂亮', '美丽', '成功', 'awesome', 'fantastic', 'nice', 'best'];
-    const negWords = ['差', '糟糕', '讨厌', '坏', '难过', '失望', '愤怒', '生气', '恶心', '垃圾',
-        'bad', 'terrible', 'hate', 'awful', 'angry', 'sad', 'ugly', 'worst', 'poor',
-        '无聊', '烦', '累', '失败', '难受', 'horrible', 'disgusting', 'boring', 'annoying'];
-
-    let posScore = 0, negScore = 0;
-    const lowerText = text.toLowerCase();
-    posWords.forEach(w => { if (lowerText.includes(w)) posScore += 1; });
-    negWords.forEach(w => { if (lowerText.includes(w)) negScore += 1; });
-
-    const total = posScore + negScore + 1;
-    let pos = Math.round((posScore / total) * 100);
-    let neg = Math.round((negScore / total) * 100);
-    let neu = 100 - pos - neg;
-
-    if (posScore === 0 && negScore === 0) { pos = 10; neg = 10; neu = 80; }
-
-    document.getElementById('sentiment-result').style.display = 'block';
-    document.getElementById('pos-bar').style.width = pos + '%';
-    document.getElementById('pos-val').textContent = pos + '%';
-    document.getElementById('neu-bar').style.width = neu + '%';
-    document.getElementById('neu-val').textContent = neu + '%';
-    document.getElementById('neg-bar').style.width = neg + '%';
-    document.getElementById('neg-val').textContent = neg + '%';
-
-    let verdict = '中性';
-    if (pos > neg + 20) verdict = '正面积极';
-    else if (neg > pos + 20) verdict = '负面消极';
-    else if (pos > neg) verdict = '偏正面';
-    else if (neg > pos) verdict = '偏负面';
-
-    document.getElementById('sentiment-summary').innerHTML = 
-        `<strong>分析结论：</strong>整体情感倾向为 <span style="color:#667eea">${verdict}</span>\n\n检测到正面关键词: ${posScore}个, 负面关键词: ${negScore}个\n\n(注：本工具使用关键词匹配方式进行基础情感分析)`;
-}
-
-
-// Code Generator
-function generateCode() {
-    const lang = document.getElementById('code-lang').value;
-    const desc = document.getElementById('code-input').value.trim();
-    if (!desc) return alert('请描述你想要的功能');
-
-    const templates = {
-        javascript: {
-            '排序': `// 冒泡排序\nfunction bubbleSort(arr) {\n    const n = arr.length;\n    for (let i = 0; i < n - 1; i++) {\n        for (let j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j + 1]) {\n                [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];\n            }\n        }\n    }\n    return arr;\n}\n\n// 使用示例\nconsole.log(bubbleSort([64, 34, 25, 12, 22, 11, 90]));`,
-            '请求': `// Fetch API 请求\nasync function fetchData(url) {\n    try {\n        const response = await fetch(url);\n        if (!response.ok) throw new Error(\`HTTP \${response.status}\`);\n        const data = await response.json();\n        return data;\n    } catch (error) {\n        console.error('请求失败:', error);\n        throw error;\n    }\n}\n\n// 使用示例\nfetchData('https://api.example.com/data')\n    .then(data => console.log(data));`,
-            'default': `// ${desc}\nfunction myFunction(params) {\n    // TODO: 实现 "${desc}" 功能\n    console.log('执行:', params);\n    return result;\n}\n\n// 使用示例\nconst result = myFunction('input');\nconsole.log(result);`
-        },
-        python: {
-            '排序': `# 冒泡排序\ndef bubble_sort(arr):\n    n = len(arr)\n    for i in range(n - 1):\n        for j in range(n - i - 1):\n            if arr[j] > arr[j + 1]:\n                arr[j], arr[j + 1] = arr[j + 1], arr[j]\n    return arr\n\n# 使用示例\nprint(bubble_sort([64, 34, 25, 12, 22, 11, 90]))`,
-            '请求': `# HTTP 请求\nimport requests\n\ndef fetch_data(url):\n    try:\n        response = requests.get(url)\n        response.raise_for_status()\n        return response.json()\n    except requests.exceptions.RequestException as e:\n        print(f"请求失败: {e}")\n        raise\n\n# 使用示例\ndata = fetch_data('https://api.example.com/data')\nprint(data)`,
-            'default': `# ${desc}\ndef my_function(params):\n    """${desc}"""\n    # TODO: 实现功能\n    result = None\n    return result\n\n# 使用示例\nresult = my_function('input')\nprint(result)`
-        },
-        html: {
-            'default': `<!-- ${desc} -->\n<!DOCTYPE html>\n<html lang="zh-CN">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>${desc}</title>\n    <style>\n        body { font-family: Arial, sans-serif; margin: 2rem; }\n        .container { max-width: 800px; margin: 0 auto; }\n    </style>\n</head>\n<body>\n    <div class="container">\n        <h1>${desc}</h1>\n        <p>内容区域</p>\n    </div>\n</body>\n</html>`
-        },
-        css: {
-            'default': `/* ${desc} */\n.container {\n    max-width: 1200px;\n    margin: 0 auto;\n    padding: 1rem;\n}\n\n.card {\n    background: #fff;\n    border-radius: 8px;\n    box-shadow: 0 2px 8px rgba(0,0,0,0.1);\n    padding: 1.5rem;\n    margin-bottom: 1rem;\n    transition: transform 0.2s;\n}\n\n.card:hover {\n    transform: translateY(-2px);\n}`
-        }
-    };
-
-    const langTemplates = templates[lang] || templates.javascript;
-    let code = langTemplates['default'];
-    for (const [key, tpl] of Object.entries(langTemplates)) {
-        if (key !== 'default' && desc.includes(key)) {
-            code = tpl; break;
-        }
-    }
-
-    const el = document.getElementById('code-result');
-    el.style.display = 'block';
-    el.textContent = code;
-}
-
-
-// JSON Formatter
-function formatJSON(action) {
-    const input = document.getElementById('json-input').value.trim();
-    if (!input) return alert('请输入JSON数据');
-    const el = document.getElementById('json-result');
-    el.style.display = 'block';
-
-    try {
-        const parsed = JSON.parse(input);
-        if (action === 'beautify') {
-            el.textContent = JSON.stringify(parsed, null, 2);
-        } else if (action === 'minify') {
-            el.textContent = JSON.stringify(parsed);
-        } else {
-            el.innerHTML = '<span style="color:#4ecdc4">&#10004; JSON 格式合法!</span>\n\n' +
-                `类型: ${Array.isArray(parsed) ? '数组' : '对象'}\n` +
-                `顶层键数: ${Object.keys(parsed).length}\n` +
-                `字符数: ${input.length}`;
-        }
-    } catch (e) {
-        el.innerHTML = `<span style="color:#e74c3c">&#10008; JSON 格式错误!</span>\n\n${e.message}`;
-    }
-}
-
-// Password Generator
-function generatePassword() {
-    const length = parseInt(document.getElementById('pwd-length').value);
-    const useUpper = document.getElementById('pwd-upper').checked;
-    const useLower = document.getElementById('pwd-lower').checked;
-    const useNumbers = document.getElementById('pwd-numbers').checked;
-    const useSymbols = document.getElementById('pwd-symbols').checked;
-
-    let charset = '';
-    if (useUpper) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    if (useLower) charset += 'abcdefghijklmnopqrstuvwxyz';
-    if (useNumbers) charset += '0123456789';
-    if (useSymbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
-
-    if (!charset) return alert('请至少选择一种字符类型');
-
-    let password = '';
-    const array = new Uint32Array(length);
-    crypto.getRandomValues(array);
-    for (let i = 0; i < length; i++) {
-        password += charset[array[i] % charset.length];
-    }
-
-    // Calculate strength
-    let strength = 0;
-    if (length >= 12) strength++;
-    if (length >= 16) strength++;
-    if (useUpper && useLower) strength++;
-    if (useNumbers) strength++;
-    if (useSymbols) strength++;
-
-    const strengthLabels = ['很弱', '弱', '一般', '强', '很强'];
-    const strengthColors = ['#e74c3c', '#f39c12', '#f1c40f', '#27ae60', '#2ecc71'];
-    const si = Math.min(strength, 4);
-
-    const el = document.getElementById('pwd-result');
-    el.style.display = 'block';
-    el.innerHTML = `<strong>生成的密码：</strong>\n\n<span style="font-family:monospace;font-size:1.2rem;letter-spacing:1px">${password}</span>\n\n密码强度: <span style="color:${strengthColors[si]}">${strengthLabels[si]}</span>\n字符集大小: ${charset.length}\n可能组合: ${charset.length}^${length} = ${Math.pow(charset.length, Math.min(length, 10)).toExponential(2)}+`;
-}
-
-
-// Markdown Preview
-function previewMarkdown() {
-    const input = document.getElementById('md-input');
-    if (!input) return;
-    const text = input.value;
-    let html = text
-        // Code blocks
-        .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
-        // Inline code
-        .replace(/`([^`]+)`/g, '<code>$1</code>')
-        // Headers
-        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-        // Bold & italic
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        // Links
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
-        // Blockquotes
-        .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
-        // Unordered lists
-        .replace(/^- (.+)$/gm, '<li>$1</li>')
-        // Line breaks
-        .replace(/\n\n/g, '</p><p>')
-        .replace(/\n/g, '<br>');
-
-    // Wrap lists
-    html = html.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
-    html = '<p>' + html + '</p>';
-
-    document.getElementById('md-preview').innerHTML = html;
-}
-
-// Color Picker
-function updateColor() {
-    const color = document.getElementById('color-input').value;
-    document.getElementById('color-preview').style.background = color;
-
-    const r = parseInt(color.substr(1, 2), 16);
-    const g = parseInt(color.substr(3, 2), 16);
-    const b = parseInt(color.substr(5, 2), 16);
-
-    // Convert to HSL
-    const rn = r / 255, gn = g / 255, bn = b / 255;
-    const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn);
-    let h, s, l = (max + min) / 2;
-
-    if (max === min) {
-        h = s = 0;
-    } else {
-        const d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        switch (max) {
-            case rn: h = ((gn - bn) / d + (gn < bn ? 6 : 0)) / 6; break;
-            case gn: h = ((bn - rn) / d + 2) / 6; break;
-            case bn: h = ((rn - gn) / d + 4) / 6; break;
-        }
-    }
-
-    h = Math.round(h * 360);
-    s = Math.round(s * 100);
-    l = Math.round(l * 100);
-
-    document.getElementById('color-values').innerHTML = `
-        <span>HEX: ${color}</span>
-        <span>RGB: rgb(${r}, ${g}, ${b})</span>
-        <span>HSL: hsl(${h}, ${s}%, ${l}%)</span>
-        <span>RGBA: rgba(${r}, ${g}, ${b}, 1)</span>
-    `;
-}
-
-function parseColorInput() {
-    const input = document.getElementById('color-text-input').value.trim();
-    const colorInput = document.getElementById('color-input');
-    // Try to parse hex
-    if (input.match(/^#[0-9a-fA-F]{6}$/)) {
-        colorInput.value = input;
-        updateColor();
-    }
-}
-
-
-// Word Counter
-function countWords() {
-    const text = document.getElementById('wc-input').value;
-    const chars = text.length;
-    const charsNoSpace = text.replace(/\s/g, '').length;
-
-    // Count Chinese chars + English words
-    const chinese = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
-    const englishWords = (text.match(/[a-zA-Z]+/g) || []).length;
-    const words = chinese + englishWords;
-
-    const lines = text ? text.split('\n').length : 0;
-    const sentences = (text.match(/[。！？.!?]+/g) || []).length || (text.length > 0 ? 1 : 0);
-
-    // Reading speed: ~300 Chinese chars/min or ~200 English words/min
-    const readingMinutes = Math.max(1, Math.ceil(words / 300));
-
-    document.getElementById('wc-chars').textContent = chars;
-    document.getElementById('wc-chars-no-space').textContent = charsNoSpace;
-    document.getElementById('wc-words').textContent = words;
-    document.getElementById('wc-lines').textContent = lines;
-    document.getElementById('wc-sentences').textContent = sentences;
-    document.getElementById('wc-reading').textContent = chars === 0 ? '0分钟' : readingMinutes + '分钟';
-}
+// Init
+renderTools();
