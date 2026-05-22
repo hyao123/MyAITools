@@ -757,3 +757,153 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 
 // Init
 renderTools();
+
+// Add more tools dynamically (Agent Skills + Video Editing ecosystem)
+tools.push(
+  // === Agent Skills 生态 ===
+  {
+    name: "AgentSkillsHub",
+    category: "skills",
+    stars: "70K+ Skills",
+    repo: "agentskillshub",
+    url: "https://agentskillshub.top",
+    pain: "发现和搜索高质量 AI Agent Skills",
+    desc: "最大的开源 Agent Skills 目录，收录 70K+ Claude Skills / MCP Servers / Codex Skills。质量评分系统，每 8 小时自动更新。分类覆盖编码/视频/设计/运维等。",
+    tags: ["目录", "70K+ Skills", "质量评分", "自动更新"]
+  },
+  {
+    name: "OpenClaw Skills",
+    category: "skills",
+    stars: "生态",
+    repo: "openclaw/skills",
+    url: "https://github.com/openclaw/skills",
+    pain: "给 AI Agent 安装专业技能",
+    desc: "开放 Agent Skills 标准和注册表。Skills 是教 Agent 如何使用工具/API/工作流的 Markdown 文件。覆盖编码、视频、DevOps、数据分析等领域。",
+    tags: ["开源", "标准", "注册表", "Markdown"]
+  },
+  {
+    name: "Skills Hub (桌面管理器)",
+    category: "skills",
+    stars: "1K+",
+    repo: "qufei1993/skills-hub",
+    url: "https://github.com/qufei1993/skills-hub",
+    pain: "管理和同步 Agent Skills 到多个工具",
+    desc: "跨平台桌面应用，集中管理 Agent Skills 并一键同步到 Claude Code / Cursor / Copilot 等多个 AI 工具的 Skills 目录。安装一次，处处同步。",
+    tags: ["桌面App", "同步", "多工具", "管理"]
+  },
+  {
+    name: "ClawHub / AgentSkill.sh",
+    category: "skills",
+    stars: "114K+ Skills",
+    repo: "agentskill-sh",
+    url: "https://agentskill.sh",
+    pain: "Claude/Cursor/Copilot 的技能商店",
+    desc: "Agent Skills 市场和 CLI 工具，可搜索安装 114K+ 技能。支持一键安装到本地，MCP Server 集成。通过 CLI 命令 `agentskill install` 安装。",
+    tags: ["市场", "CLI", "一键安装", "MCP"]
+  },
+  {
+    name: "Awesome OpenClaw Skills",
+    category: "skills",
+    stars: "策展",
+    repo: "VoltAgent/awesome-openclaw-skills",
+    url: "https://github.com/VoltAgent/awesome-openclaw-skills",
+    pain: "OpenClaw 生态中哪些 Skills 值得装",
+    desc: "OpenClaw Skills 精选列表，按类别推荐高质量技能（编码/图像视频/运维/商业等）。帮你从海量 Skills 中筛选真正有用的。",
+    tags: ["策展", "分类推荐", "质量筛选"]
+  },
+
+  // === 视频编辑 AI 工具 ===
+  {
+    name: "Runway",
+    category: "video",
+    stars: "商业",
+    repo: "runwayml",
+    url: "https://runwayml.com",
+    pain: "专业级 AI 视频编辑和生成",
+    desc: "Gen-4.5 模型支持文本/图像/视频到视频。AI 遮罩、运动追踪、背景移除、风格迁移。好莱坞级特效在浏览器内完成。创意团队首选。",
+    tags: ["商业", "Gen-4.5", "专业级", "特效"]
+  },
+  {
+    name: "Descript",
+    category: "video",
+    stars: "商业",
+    repo: "descript",
+    url: "https://descript.com",
+    pain: "像编辑文档一样编辑视频",
+    desc: "文本式视频编辑器，编辑转录文字即编辑视频。Underlord AI 自动去除填充词/静音。支持屏幕录制、播客编辑、AI 配音。播客/教程创作者必备。",
+    tags: ["商业", "文本编辑", "播客", "AI配音"]
+  },
+  {
+    name: "CapCut",
+    category: "video",
+    stars: "商业/免费",
+    repo: "capcut",
+    url: "https://capcut.com",
+    pain: "快速制作社交媒体短视频",
+    desc: "字节跳动出品的免费视频编辑器，AI 自动字幕、智能抠图、节拍对齐、文字转语音。模板丰富，TikTok/Reels 创作者最爱。桌面+移动全平台。",
+    tags: ["免费", "短视频", "自动字幕", "模板"]
+  },
+  {
+    name: "OpusClip",
+    category: "video",
+    stars: "商业",
+    repo: "opusclip",
+    url: "https://opus.pro",
+    pain: "长视频自动切成短视频爆款",
+    desc: "AI 自动将长视频(播客/访谈/讲座)切割为多个短视频。智能识别高光时刻，自动加字幕/排版。4 分钟产出 12 个 viral-ready 短片。",
+    tags: ["商业", "长转短", "自动剪辑", "字幕"]
+  },
+  {
+    name: "Remotion",
+    category: "video",
+    stars: "21K+",
+    repo: "remotion-dev/remotion",
+    url: "https://github.com/remotion-dev/remotion",
+    pain: "用 React 代码生成视频",
+    desc: "程序化视频制作框架，用 React/TypeScript 编写视频。适合批量生成、数据驱动视频、自动化视频流水线。Agent Skill 生态中视频生成核心。",
+    tags: ["开源", "React", "程序化", "批量生成"]
+  },
+  {
+    name: "FFmpeg (AI Skills)",
+    category: "video",
+    stars: "47K+",
+    repo: "FFmpeg/FFmpeg",
+    url: "https://github.com/FFmpeg/FFmpeg",
+    pain: "命令行视频处理(剪切/转码/合并)",
+    desc: "视频处理瑞士军刀，几乎所有视频工具的底层。AI Agent 通过 FFmpeg Skill 可执行精确剪辑/转码/拼接/添加字幕。Agent 视频编辑的基础能力。",
+    tags: ["开源", "CLI", "底层工具", "Agent基础"]
+  },
+  {
+    name: "Topaz Video AI",
+    category: "video",
+    stars: "商业",
+    repo: "topaz",
+    url: "https://topazlabs.com/topaz-video-ai",
+    pain: "视频超分辨率/去噪/补帧",
+    desc: "AI 视频增强工具，老视频转 4K、去噪点、60fps 补帧、去抖动。本地 GPU 推理，效果业界顶级。修复老素材/监控画面首选。",
+    tags: ["商业", "超分", "补帧", "去噪"]
+  },
+  {
+    name: "Kling AI",
+    category: "video",
+    stars: "商业",
+    repo: "kling",
+    url: "https://klingai.com",
+    pain: "高质量 AI 视频生成(中国版 Sora)",
+    desc: "快手出品的 AI 视频生成工具，文本/图片生成视频。运动控制好、人物一致性高、支持 1080p。免费额度慷慨，国内可用。",
+    tags: ["商业", "视频生成", "国内可用", "免费额度"]
+  },
+  {
+    name: "Video-Editing Skill (Claude)",
+    category: "skills",
+    stars: "Skill",
+    repo: "affaan-m/everything-claude-code-skills",
+    url: "https://skillsmp.com/skills/affaan-m-everything-claude-code-skills-video-editing-skill-md",
+    pain: "让 Claude Code 具备视频编辑能力",
+    desc: "Claude Code 视频编辑 Skill，覆盖从原始素材到最终发布的全流程：FFmpeg 剪辑→Remotion 合成→ElevenLabs 配音→Descript/CapCut 精修。",
+    tags: ["Skill", "全流程", "Claude Code", "FFmpeg"]
+  }
+);
+
+// Re-render after adding
+renderTools();
